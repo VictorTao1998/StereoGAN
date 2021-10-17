@@ -23,6 +23,7 @@ from utils.util import load_multi_gpu_checkpoint, load_checkpoint
 from utils.metric_utils.metrics import *
 from utils import pytorch_ssim
 from utils.config import cfg
+from utils.data_util import *
 
 def val(valloader, net, writer, epoch=1, board_save=True):
     net.eval()
@@ -387,12 +388,10 @@ def train(args,cfg):
                     writer.add_image('BAB_R/imgB', rightB_visual, i)
                     writer.add_image('BAB_R/fakeA', fakeA_R_visual, i)
                     writer.add_image('BAB_R/recB', recB_R_visual, i)
-                    writer.add_image('pred/sim_L', leftA[0].detach().cpu(), i)
-                    writer.add_image('pred/sim_R', rightA[0].detach().cpu(), i)
-                    writer.add_image('pred/real_L', leftB[0].detach().cpu(), i)
-                    writer.add_image('pred/real_R', rightB[0].detach().cpu(), i)
-                    writer.add_image('pred/gt_disp', dispA[0].detach().cpu(), i)
-                    writer.add_image('pred/pred_disp', disp_ests[0][0].detach().cpu(), i)
+                    save_images(writer, 'train', dispA[0].detach().cpu(), i)
+                    save_images(writer, 'train', [disp[0].detach().cpu() for disp in disp_ests], i)
+                    #writer.add_image('pred/gt_disp', dispA[0].detach().cpu(), i)
+                    #writer.add_image('pred/pred_disp', disp_ests[0][0].detach().cpu(), i)
 
                 if args.lambda_warp_inv:
                     recA_warp_visual = vutils.make_grid(rec_leftA_warp[0][:4,:,:,:], nrow=1, normalize=True, scale_each=True)
