@@ -373,6 +373,7 @@ def train(args,cfg):
                     rightB_visual = vutils.make_grid(rightB[:4,:,:,:], nrow=1, normalize=True, scale_each=True)
                     fakeA_R_visual = vutils.make_grid(fake_rightA[:4,:,:,:], nrow=1, normalize=True, scale_each=True)
                     recB_R_visual = vutils.make_grid(rec_rightB[:4,:,:,:], nrow=1, normalize=True, scale_each=True)
+                    
 
                     writer.add_image('ABA_L/imgA', imgA_visual, i)
                     writer.add_image('ABA_L/fakeB', fakeB_visual, i)
@@ -386,7 +387,7 @@ def train(args,cfg):
                     writer.add_image('BAB_R/imgB', rightB_visual, i)
                     writer.add_image('BAB_R/fakeA', fakeA_R_visual, i)
                     writer.add_image('BAB_R/recB', recB_R_visual, i)
-                    writer.add_image('pred/pred_disp', disp_ests.cpu(), i)
+                    writer.add_image('pred/pred_disp', [disp.cpu() for disp in disp_ests], i)
 
                 if args.lambda_warp_inv:
                     recA_warp_visual = vutils.make_grid(rec_leftA_warp[0][:4,:,:,:], nrow=1, normalize=True, scale_each=True)
