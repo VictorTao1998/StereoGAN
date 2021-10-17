@@ -316,7 +316,9 @@ def train(args,cfg):
             optimizer.zero_grad()
             disp_ests = net(G_AB(leftA), G_AB.forward(rightA))
             mask = (dispA < args.maxdisp) & (dispA > 0)
+            #print(mask.dtype)
             loss0 = model_loss0(disp_ests, dispA, mask)
+            #print(mask.dtype)
 
             if args.lambda_disp_warp_inv:
                 disp_warp = [-disp_ests[i] for i in range(3)]
@@ -331,13 +333,14 @@ def train(args,cfg):
                 loss_disp_warp = loss_disp_warp.mean()
             else:
                 loss_disp_warp = 0
+            #print(mask.dtype)
 
             loss = loss0 + args.lambda_disp_warp*loss_disp_warp + args.lambda_disp_warp_inv*loss_disp_warp_inv
             loss.backward()
             optimizer.step()
 
             if i % print_freq == print_freq - 1:
-                print('epoch[{}/{}]  step[{}/{}]  loss: {}'.format(epoch, cfg.SOLVER.EPOCHS, i, len(trainloader), loss.item() ))
+                print('epoch[{}/{}]  step[{}/{}]  loss: {}'.format(epoch, cfg.SOLVER.EPOCHS, i, len(TrainImgLoader), loss.item() ))
                 train_loss_meter.update(running_loss / print_freq)
                 #writer.add_scalar('loss/trainloss avg_meter', train_loss_meter.val, train_loss_meter.count * print_freq)
                 writer.add_scalar('loss/loss_disp', loss0, train_loss_meter.count * print_freq)
@@ -393,6 +396,7 @@ def train(args,cfg):
                     writer.add_image('warp/fakeB_R_warp', fakeB_warp_R_visual, i)
                     recA_warp_R_visual = vutils.make_grid(rec_rightA_warp[0][:4,:,:,:], nrow=1, normalize=True, scale_each=True)
                     fakeB_warp_R_visual = vutils.make_grid(fake_rightB_warp[0][:4,:,:,:], nrow=1, normalize=True, scale_each=True)
+            #print(mask.dtype)
 
         with torch.no_grad():
             EPE, D1 = val(ValImgLoader, net, writer, epoch=epoch, board_save=True)
