@@ -388,7 +388,7 @@ def train(args,cfg):
                     writer.add_image('BAB_R/imgB', rightB_visual, i)
                     writer.add_image('BAB_R/fakeA', fakeA_R_visual, i)
                     writer.add_image('BAB_R/recB', recB_R_visual, i)
-                    save_images(writer, 'train', dispA[0].detach().cpu(), i)
+                    save_images(writer, 'train', [dispA[0].detach().cpu()], i)
                     save_images(writer, 'train', [disp[0].detach().cpu() for disp in disp_ests], i)
                     #writer.add_image('pred/gt_disp', dispA[0].detach().cpu(), i)
                     #writer.add_image('pred/pred_disp', disp_ests[0][0].detach().cpu(), i)
