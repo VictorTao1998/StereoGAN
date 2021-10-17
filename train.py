@@ -135,7 +135,8 @@ def train(args,cfg):
                                                      shuffle=True, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=True)
 
     ValImgLoader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
-                                                shuffle=False, num_workers=cfg.SOLVER.TEST_WORKER, drop_last=False)
+                                                shuffle=False, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=False)
+    print(cfg.SOLVER.BATCH_SIZE,cfg.SOLVER.NUM_WORKER)
     
     #if args.source_dataset == 'driving':
     #    dataset = ImageDataset(height=args.img_height, width=args.img_width)
