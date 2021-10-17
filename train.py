@@ -135,7 +135,7 @@ def train(args,cfg):
                                                      shuffle=True, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=True)
 
     ValImgLoader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
-                                                shuffle=False, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=False)
+                                                shuffle=False, num_workers=cfg.SOLVER.TEST_WORKER, drop_last=False)
     
     #if args.source_dataset == 'driving':
     #    dataset = ImageDataset(height=args.img_height, width=args.img_width)
@@ -385,6 +385,7 @@ def train(args,cfg):
                     writer.add_image('BAB_R/imgB', rightB_visual, i)
                     writer.add_image('BAB_R/fakeA', fakeA_R_visual, i)
                     writer.add_image('BAB_R/recB', recB_R_visual, i)
+                    writer.add_image('pred/pred_disp', disp_ests, i)
 
                 if args.lambda_warp_inv:
                     recA_warp_visual = vutils.make_grid(rec_leftA_warp[0][:4,:,:,:], nrow=1, normalize=True, scale_each=True)
