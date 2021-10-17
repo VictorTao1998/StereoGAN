@@ -56,7 +56,7 @@ def val(valloader, net, writer, epoch=1, board_save=True):
     return EPEs/i, D1s/i
 
 def train(args,cfg):
-    writer = SummaryWriter(comment=args.writer)
+    writer = SummaryWriter(args.writer)
     os.makedirs(args.checkpoint_save_path, exist_ok=True)
 
     argsDict = args.__dict__
