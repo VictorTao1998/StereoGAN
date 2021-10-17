@@ -387,6 +387,7 @@ def train(args,cfg):
                     writer.add_image('BAB_R/imgB', rightB_visual, i)
                     writer.add_image('BAB_R/fakeA', fakeA_R_visual, i)
                     writer.add_image('BAB_R/recB', recB_R_visual, i)
+                    print(disp_ests[0].shape)
                     writer.add_image('pred/pred_disp', [disp.detach().cpu() for disp in disp_ests], i)
 
                 if args.lambda_warp_inv:
