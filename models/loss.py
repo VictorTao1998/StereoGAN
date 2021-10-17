@@ -19,6 +19,7 @@ def model_loss0(disp_ests, disp_gt, mask):
         else:
             dgt = disp_gt
             m = mask
+        #print(disp_est.shape, m.shape)
         all_losses.append(weight * F.smooth_l1_loss(disp_est[m], dgt[m], size_average=True))
     return sum(all_losses)
 

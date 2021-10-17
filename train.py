@@ -13,7 +13,8 @@ import torch.nn.functional as F
 from models.loss import warp_loss, model_loss0
 from models.dispnet import dispnetcorr
 from models.gan_nets import GeneratorResNet, Discriminator, weights_init_normal
-from dataset import ImageDataset, ValJointImageDataset
+from datasets.messytable import MessytableDataset
+from datasets.messytable_test import MessytableTestDataset_TEST
 
 from tensorboardX import SummaryWriter
 import torchvision.utils as vutils
@@ -21,23 +22,31 @@ from utils.util import AverageMeter
 from utils.util import load_multi_gpu_checkpoint, load_checkpoint
 from utils.metric_utils.metrics import *
 from utils import pytorch_ssim
+from utils.config import cfg
 
 def val(valloader, net, writer, epoch=1, board_save=True):
     net.eval()
     EPEs, D1s, Thres1s, Thres2s, Thres3s = 0, 0, 0, 0, 0
     i = 0
-    for left_img, right_img, disp_gt in valloader:
-        left_img = left_img.cuda()
-        right_img = right_img.cuda()
-        disp_gt = disp_gt.cuda()
+    for sample in valloader:
+        left_img = sample['img_L'].cuda()
+        right_img = sample['img_R'].cuda()
+        disp_gt = sample['img_disp_l'].cuda()
+        left_img = F.interpolate(left_img, scale_factor=0.5, mode='bilinear',
+                             recompute_scale_factor=False, align_corners=False)
+        right_img = F.interpolate(right_img, scale_factor=0.5, mode='bilinear',
+                                recompute_scale_factor=False, align_corners=False)
+        disp_gt = F.interpolate(disp_gt, scale_factor=0.5, mode='nearest',
+                            recompute_scale_factor=False)  # [bs, 1, H, W]
         i = i + 1
         mask = (disp_gt < args.maxdisp) & (disp_gt > 0)
         disp_est = net(left_img, right_img)[0].squeeze(1)
-        EPEs += EPE_metric(disp_est, disp_gt, mask)
-        D1s += D1_metric(disp_est, disp_gt, mask)
-        Thres1s += Thres_metric(disp_est, disp_gt, mask, 2.0)
-        Thres2s += Thres_metric(disp_est, disp_gt, mask, 4.0)
-        Thres3s += Thres_metric(disp_est, disp_gt, mask, 5.0)
+        #print(disp_est.shape, disp_gt.shape, mask.shape)
+        EPEs += EPE_metric(disp_est, disp_gt[0], mask[0])
+        D1s += D1_metric(disp_est, disp_gt[0], mask[0])
+        Thres1s += Thres_metric(disp_est, disp_gt[0], mask[0], 2.0)
+        Thres2s += Thres_metric(disp_est, disp_gt[0], mask[0], 4.0)
+        Thres3s += Thres_metric(disp_est, disp_gt[0], mask[0], 5.0)
     if board_save:
         writer.add_scalar("val/EPE", EPEs/i, epoch)
         writer.add_scalar("val/D1", D1s/i, epoch)
@@ -46,7 +55,7 @@ def val(valloader, net, writer, epoch=1, board_save=True):
         writer.add_scalar("val/Thres5", Thres3s/i, epoch)
     return EPEs/i, D1s/i
 
-def train(args):
+def train(args,cfg):
     writer = SummaryWriter(comment=args.writer)
     os.makedirs(args.checkpoint_save_path, exist_ok=True)
 
@@ -61,12 +70,12 @@ def train(args):
 
     print(device)
     
-    input_shape = (3, args.img_height, args.img_width)
+    input_shape = (1, cfg.ARGS.CROP_HEIGHT, cfg.ARGS.CROP_WIDTH)
     net = dispnetcorr(args.maxdisp)
     G_AB = GeneratorResNet(input_shape, 2)
     G_BA = GeneratorResNet(input_shape, 2)
-    D_A = Discriminator(3)
-    D_B = Discriminator(3)
+    D_A = Discriminator(1)
+    D_B = Discriminator(1)
 
     if args.load_checkpoints:
         if args.load_from_mgpus_model:
@@ -119,15 +128,25 @@ def train(args):
     ssim_loss = pytorch_ssim.SSIM()
 
     # data loader
-    if args.source_dataset == 'driving':
-        dataset = ImageDataset(height=args.img_height, width=args.img_width)
-    elif args.source_dataset == 'synthia':
-        dataset = ImageDataset2(height=args.img_height, width=args.img_width)
-    else:
-        raise "No suportive dataset"
-    trainloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
-    valdataset = ValJointImageDataset()
-    valloader = torch.utils.data.DataLoader(valdataset, batch_size=args.test_batch_size, shuffle=False, num_workers=1)
+    train_dataset = MessytableDataset(cfg.SPLIT.TRAIN, gaussian_blur=False, color_jitter=False, debug=False, sub=600)
+    val_dataset = MessytableTestDataset_TEST(cfg.REAL.TRAIN, debug=False, sub=100, onReal=True)
+
+    TrainImgLoader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
+                                                     shuffle=True, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=True)
+
+    ValImgLoader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
+                                                shuffle=False, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=False)
+    
+    #if args.source_dataset == 'driving':
+    #    dataset = ImageDataset(height=args.img_height, width=args.img_width)
+    #elif args.source_dataset == 'synthia':
+    #    dataset = ImageDataset2(height=args.img_height, width=args.img_width)
+    #else:
+    #    raise "No suportive dataset"
+    
+    #trainloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
+    #valdataset = ValJointImageDataset()
+    #valloader = torch.utils.data.DataLoader(valdataset, batch_size=args.test_batch_size, shuffle=False, num_workers=1)
 
     train_loss_meter = AverageMeter()
     val_loss_meter = AverageMeter()
@@ -141,7 +160,7 @@ def train(args):
     print('begin training...')
     best_val_d1 = 1.
     best_val_epe = 100.
-    for epoch in range(args.total_epochs):
+    for epoch in range(cfg.SOLVER.EPOCHS):
         #net.train()
         #G_AB.train()
 
@@ -155,15 +174,30 @@ def train(args):
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
-        for i, batch in enumerate(trainloader):
+        for i, batch in enumerate(TrainImgLoader):
             n_iter += 1
-            leftA = batch['leftA'].to(device)
-            rightA = batch['rightA'].to(device)
-            leftB = batch['leftB'].to(device)
-            rightB = batch['rightB'].to(device)
-            dispA = batch['dispA'].unsqueeze(1).float().to(device)
-            dispB = batch['dispB'].to(device) 
-            out_shape = (leftA.size(0), 1, args.img_height//16, args.img_width//16)
+            leftA = batch['img_sim_L'].to(device)
+            rightA = batch['img_sim_R'].to(device)
+            leftB = batch['img_real_L'].to(device)
+            rightB = batch['img_real_R'].to(device)
+            dispA = batch['img_disp_l'].to(device)
+            dispB = batch['img_disp_r'].to(device) 
+            leftB = F.interpolate(leftB, scale_factor=0.5, mode='bilinear',
+                             recompute_scale_factor=False, align_corners=False)
+            rightB = F.interpolate(rightB, scale_factor=0.5, mode='bilinear',
+                                    recompute_scale_factor=False, align_corners=False)
+            dispA = F.interpolate(dispA, scale_factor=0.5, mode='nearest',
+                             recompute_scale_factor=False)  # [bs, 1, H, W]
+            dispB = F.interpolate(dispB, scale_factor=0.5, mode='nearest',
+                                    recompute_scale_factor=False)  # [bs, 1, H, W]
+            #if args.warp_op:
+            #    img_disp_r = sample['img_disp_r'].to(cuda_device)
+            #    img_disp_r = F.interpolate(img_disp_r, scale_factor=0.5, mode='nearest',
+            #                            recompute_scale_factor=False)
+            #    disp_gt = apply_disparity_cu(img_disp_r, img_disp_r.type(torch.int))  # [bs, 1, H, W]
+            #    del img_disp_r
+            #dispA = dispA.unsqueeze(1).float()
+            out_shape = (leftA.size(0), 1, cfg.ARGS.CROP_HEIGHT//16, cfg.ARGS.CROP_WIDTH//16)
             valid = torch.cuda.FloatTensor(np.ones(out_shape))
             fake = torch.cuda.FloatTensor(np.zeros(out_shape))
             
@@ -220,6 +254,7 @@ def train(args):
 
                 # warping loss
                 if args.lambda_warp_inv:
+                    #print(rightA.shape, dispA.shape)
                     fake_leftB_warp, loss_warp_inv_feat1 = G_AB(rightA, -dispA, True, [x.detach() for x in fake_leftB_feats])
                     rec_leftA_warp, loss_warp_inv_feat2 = G_BA(fake_rightB, -dispA, True, [x.detach() for x in rec_leftA_feats])
                     loss_warp_inv1 = warp_loss([(G_BA(fake_leftB_warp[0]), fake_leftB_warp[1])], [leftA], weights=[1])
@@ -247,7 +282,7 @@ def train(args):
                 else:
                     loss_corr = 0.
 
-                lambda_ms = args.lambda_ms * (args.total_epochs - epoch) / args.total_epochs
+                lambda_ms = args.lambda_ms * (cfg.SOLVER.EPOCHS - epoch) / cfg.SOLVER.EPOCHS
                 loss_G = loss_GAN + args.lambda_cycle*(args.alpha_ssim*loss_ssim+(1-args.alpha_ssim)*loss_cycle) + args.lambda_id*loss_id \
                        + args.lambda_warp*loss_warp + args.lambda_warp_inv*loss_warp_inv + args.lambda_corr*loss_corr + lambda_ms*loss_ms 
                 loss_G.backward()
@@ -302,7 +337,7 @@ def train(args):
             optimizer.step()
 
             if i % print_freq == print_freq - 1:
-                print('epoch[{}/{}]  step[{}/{}]  loss: {}'.format(epoch, args.total_epochs, i, len(trainloader), loss.item() ))
+                print('epoch[{}/{}]  step[{}/{}]  loss: {}'.format(epoch, cfg.SOLVER.EPOCHS, i, len(trainloader), loss.item() ))
                 train_loss_meter.update(running_loss / print_freq)
                 #writer.add_scalar('loss/trainloss avg_meter', train_loss_meter.val, train_loss_meter.count * print_freq)
                 writer.add_scalar('loss/loss_disp', loss0, train_loss_meter.count * print_freq)
@@ -360,7 +395,7 @@ def train(args):
                     fakeB_warp_R_visual = vutils.make_grid(fake_rightB_warp[0][:4,:,:,:], nrow=1, normalize=True, scale_each=True)
 
         with torch.no_grad():
-            EPE, D1 = val(valloader, net, writer, epoch=epoch, board_save=True)
+            EPE, D1 = val(ValImgLoader, net, writer, epoch=epoch, board_save=True)
 
         t1 = time.time()
         print('epoch:{}, D1:{:.6f}, EPE:{:.6f}, cost time:{} '.format(epoch, D1, EPE, t1-t))
@@ -384,19 +419,12 @@ def train(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Hyperparams')
-    # dataset
-    parser.add_argument('--source_dataset', type=str, default='driving')
-    parser.add_argument('--img_height', type=int, default=320)
-    parser.add_argument('--img_width', type=int, default=512)
 
     # training
     parser.add_argument('--lr_rate', nargs='?', type=float, default=1e-4, help='learning rate for dispnetc')
     parser.add_argument('--lrepochs', type=str, default='30:1', help='the epochs to decay lr: the downscale rate')
     parser.add_argument('--lr_gan', nargs='?', type=float, default=2e-4, help='learning rate for GAN')
     parser.add_argument('--train_ratio_gan', nargs='?', type=int, default=5, help='training ratio disp:gan=5:1')
-    parser.add_argument('--batch_size', nargs='?', type=int, default=6, help='batch size')
-    parser.add_argument('--test_batch_size', nargs='?', type=int, default=4, help='test batch size')
-    parser.add_argument('--total_epochs', nargs='?', type=int, default='201')
     parser.add_argument('--save_interval', nargs='?', type=int, default='10')
     parser.add_argument('--model_type', nargs='?', type=str, default='dispnetc')
     parser.add_argument('--maxdisp', type=int, default=192)
@@ -425,5 +453,9 @@ if __name__ == '__main__':
 
     # other
     parser.add_argument('--use_multi_gpu', nargs='?', type=int, default=0, help='the number of multi gpu to use')
+    parser.add_argument('--config-file', type=str, default='./configs/local_train_steps.yaml',
+                    metavar='FILE', help='Config files')
     args = parser.parse_args()
-    train(args)
+    cfg.merge_from_file(args.config_file)
+    #set_random_seed(args.seed)
+    train(args,cfg)

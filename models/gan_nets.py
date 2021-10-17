@@ -205,6 +205,7 @@ class GeneratorResNet(nn.Module):
                     loss_warp = warp_loss([y, y1, y2], feat_gt, weights=[0.5,0.5,0.7])
                     return loss_warp
                 else:
+                    #print(offset.shape)
                     y = bilinear_sampler(x, F.max_pool2d(offset,4,4)/4, 'zeros')
                     y1 = bilinear_sampler(x1, F.max_pool2d(offset,2,2)/2, 'zeros')
                     y2 = bilinear_sampler(x2, offset, 'zeros')

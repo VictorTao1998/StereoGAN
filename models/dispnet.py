@@ -18,7 +18,7 @@ class dispnetcorr(nn.Module):
         self.upsample = nn.Upsample(scale_factor=2, mode='bilinear')
         
         # 卷积层
-        self.conv1 = conv2d_bn(3, 64, kernel_size=7, stride=2, flag_bias=flag_bias_t, bn=flag_bn, activefun=activefun_t)
+        self.conv1 = conv2d_bn(1, 64, kernel_size=7, stride=2, flag_bias=flag_bias_t, bn=flag_bn, activefun=activefun_t)
         self.conv2 = conv2d_bn(64, 128, kernel_size=5, stride=2, flag_bias=flag_bias_t, bn=flag_bn, activefun=activefun_t)
         self.corr = Corr1d(kernel_size=1, stride=1, D=41, simfun=None)
         self.redir = conv2d_bn(128, 64, kernel_size=1, stride=1, flag_bias=flag_bias_t, bn=flag_bn, activefun=activefun_t)        
