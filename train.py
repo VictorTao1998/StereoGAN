@@ -26,6 +26,7 @@ from utils.config import cfg
 from utils.data_util import *
 
 def val(valloader, net, writer, epoch=1, board_save=True):
+    print("begin validation")
     net.eval()
     EPEs, D1s, Thres1s, Thres2s, Thres3s = 0, 0, 0, 0, 0
     i = 0
