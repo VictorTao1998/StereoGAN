@@ -53,7 +53,7 @@ class MessytableTestDataset_TEST(Dataset):
             img_depth_l = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.DEPTHL) for p in prefix]
             img_depth_r = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.DEPTHR) for p in prefix]
             img_meta = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.META) for p in prefix]
-            img_label = [os.path.join(cfg.REAL.DATASET, p, cfg.SPLIT.LABEL) for p in prefix]
+            img_label = [os.path.join(cfg.REAL.LABELPATH, p, cfg.SPLIT.LABEL) for p in prefix]
             img_sim_realsense = [os.path.join(sim_dataset, p, sim_realsense) for p in prefix]
             img_real_realsense = [os.path.join(real_dataset, p, real_realsense) for p in prefix]
 
@@ -79,12 +79,20 @@ class MessytableTestDataset_TEST(Dataset):
         if self.onReal:
             img_L_rgb = Image.open(self.img_L_real[idx]).convert(mode='L')
             img_R_rgb = Image.open(self.img_R_real[idx]).convert(mode='L')
+            wr, hr = img_R_rgb.size
+            if wr != 1920 or hr != 1080:
+                img_L_rgb = img_L_rgb.resize((1920,1080),Image.NEAREST)
+                img_R_rgb = img_R_rgb.resize((1920,1080),Image.NEAREST)
             img_depth_realsense = np.array(Image.open(self.img_real_realsense[idx])) / 1000
         else:
             img_L_rgb = Image.open(self.img_L[idx]).convert(mode='L')
             img_R_rgb = Image.open(self.img_R[idx]).convert(mode='L')
             img_L_rgb_real = Image.open(self.img_L_real[idx]).convert(mode='L')
             img_R_rgb_real = Image.open(self.img_R_real[idx]).convert(mode='L')
+            wr, hr = img_R_rgb_real.size
+            if wr != 1920 or hr != 1080:
+                img_L_rgb_real = img_L_rgb_real.resize((1920,1080),Image.NEAREST)
+                img_R_rgb_real = img_R_rgb_real.resize((1920,1080),Image.NEAREST)
             img_depth_realsense = np.array(Image.open(self.img_sim_realsense[idx])) / 1000
 
         img_depth_l = np.array(Image.open(self.img_depth_l[idx])) / 1000  # convert from mm to m

@@ -15,6 +15,7 @@ from models.dispnet import dispnetcorr
 from models.gan_nets import GeneratorResNet, Discriminator, weights_init_normal
 from datasets.messytable import MessytableDataset
 from datasets.messytable_test import MessytableTestDataset_TEST
+from models.psmnet import PSMNet
 
 from tensorboardX import SummaryWriter
 import torchvision.utils as vutils
@@ -73,7 +74,7 @@ def train(args,cfg):
     print(device)
     
     input_shape = (1, cfg.ARGS.CROP_HEIGHT, cfg.ARGS.CROP_WIDTH)
-    net = dispnetcorr(args.maxdisp)
+    net = PSMNet(args.maxdisp)
     G_AB = GeneratorResNet(input_shape, 2)
     G_BA = GeneratorResNet(input_shape, 2)
     D_A = Discriminator(1)
@@ -178,8 +179,6 @@ def train(args,cfg):
             param_group['lr'] = lr
 
         for i, batch in enumerate(TrainImgLoader):
-            if i > 5:
-                break
             n_iter += 1
             leftA = batch['img_sim_L'].to(device)
             rightA = batch['img_sim_R'].to(device)
@@ -187,17 +186,14 @@ def train(args,cfg):
             rightB = batch['img_real_R'].to(device)
             dispA = batch['img_disp_l'].to(device)
             dispB = batch['img_disp_r'].to(device) 
-
             leftB = F.interpolate(leftB, scale_factor=0.5, mode='bilinear',
                              recompute_scale_factor=False, align_corners=False)
             rightB = F.interpolate(rightB, scale_factor=0.5, mode='bilinear',
                                     recompute_scale_factor=False, align_corners=False)
-            
             dispA = F.interpolate(dispA, scale_factor=0.5, mode='nearest',
                              recompute_scale_factor=False)  # [bs, 1, H, W]
             dispB = F.interpolate(dispB, scale_factor=0.5, mode='nearest',
                                     recompute_scale_factor=False)  # [bs, 1, H, W]
-            #print(leftB.shape, rightB.shape, dispA.shape, dispB.shape)
             #if args.warp_op:
             #    img_disp_r = sample['img_disp_r'].to(cuda_device)
             #    img_disp_r = F.interpolate(img_disp_r, scale_factor=0.5, mode='nearest',
@@ -280,19 +276,10 @@ def train(args,cfg):
                 else:
                     loss_warp = 0
 
-                # corr loss
-                if args.lambda_corr:
-                    corrB = net(leftB, rightB, extract_feat=True)
-                    corrB1 = net(leftB, rec_rightB, extract_feat=True)
-                    corrB2 = net(rec_leftB, rightB, extract_feat=True)
-                    corrB3 = net(rec_leftB, rec_rightB, extract_feat=True)
-                    loss_corr = (criterion_identity(corrB1, corrB)+criterion_identity(corrB2, corrB)+criterion_identity(corrB3, corrB))/3
-                else:
-                    loss_corr = 0.
 
                 lambda_ms = args.lambda_ms * (cfg.SOLVER.EPOCHS - epoch) / cfg.SOLVER.EPOCHS
                 loss_G = loss_GAN + args.lambda_cycle*(args.alpha_ssim*loss_ssim+(1-args.alpha_ssim)*loss_cycle) + args.lambda_id*loss_id \
-                       + args.lambda_warp*loss_warp + args.lambda_warp_inv*loss_warp_inv + args.lambda_corr*loss_corr + lambda_ms*loss_ms 
+                       + args.lambda_warp*loss_warp + args.lambda_warp_inv*loss_warp_inv + lambda_ms*loss_ms 
                 loss_G.backward()
                 optimizer_G.step()
 
@@ -325,7 +312,13 @@ def train(args,cfg):
             disp_ests = net(G_AB(leftA), G_AB.forward(rightA))
             mask = (dispA < args.maxdisp) & (dispA > 0)
             #print(mask.dtype)
-            loss0 = model_loss0(disp_ests, dispA, mask)
+            print(disp_ests[0].shape, dispA.shape, mask.shape)
+            pred_disp1, pred_disp2, pred_disp3 = psmnet_model(img_L, img_R)
+            pred_disp = pred_disp3
+            loss0 = 0.5 * F.smooth_l1_loss(pred_disp1[mask], disp_gt[mask], reduction='mean') \
+                + 0.7 * F.smooth_l1_loss(pred_disp2[mask], disp_gt[mask], reduction='mean') \
+                + F.smooth_l1_loss(pred_disp3[mask], disp_gt[mask], reduction='mean')
+            #loss0 = model_loss0(disp_ests, dispA, mask)
             #print(mask.dtype)
 
             if args.lambda_disp_warp_inv:
@@ -362,7 +355,6 @@ def train(args,cfg):
                     writer.add_scalar('loss/loss_id', loss_id, train_loss_meter.count * print_freq)
                     writer.add_scalar('loss/loss_warp', loss_warp, train_loss_meter.count * print_freq)
                     writer.add_scalar('loss/loss_warp_inv', loss_warp_inv, train_loss_meter.count * print_freq)
-                    writer.add_scalar('loss/loss_corr', loss_corr, train_loss_meter.count * print_freq)
                     writer.add_scalar('loss/loss_ms', loss_ms, train_loss_meter.count * print_freq)
                     writer.add_scalar('loss/loss_D_A', loss_D_A, train_loss_meter.count * print_freq)
                     writer.add_scalar('loss/loss_D_B', loss_D_B, train_loss_meter.count * print_freq)

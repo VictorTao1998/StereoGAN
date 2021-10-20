@@ -32,6 +32,7 @@ _C.SPLIT.REAL_REALSENSE = '1024_depth_real.png'
 _C.REAL = CN()
 _C.REAL.DATASET = '/code/real_dataset_local_v9'  # path to your real testing dataset
 _C.REAL.DEPTHPATH = '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
+_C.REAL.LABELPATH = '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
 _C.REAL.TRAIN = '/cephfs/jianyu/newTrain.txt'
 _C.REAL.LEFT = '1024_irL_real_1080.png'
 _C.REAL.RIGHT = '1024_irR_real_1080.png'

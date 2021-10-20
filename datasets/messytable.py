@@ -138,9 +138,15 @@ class MessytableDataset(Dataset):
 
         # For unpaired pix2pix, load a random real image from real dataset [H, W, 1], in value range (-1, 1)
         #print(np.array(Image.open(random.choice(self.img_sim)).convert('RGB')).shape)
-        img_real_L_rgb = Image.open(random.choice(self.img_real_L)).convert('L')
-        img_real_R_rgb = Image.open(random.choice(self.img_real_R)).convert('L')
-        #print(img_sim_rgb.shape)
+        idx2 = random.randint(0, len(self.img_real_L)-1)
+        img_real_L_rgb = Image.open(self.img_real_L[idx2]).convert('L')
+        img_real_R_rgb = Image.open(self.img_real_R[idx2]).convert('L')
+
+        wr, hr = img_real_L_rgb.size
+        if wr != 1920 or hr != 1080:
+            img_real_L_rgb = img_real_L_rgb.resize((1920,1080),Image.NEAREST)
+            img_real_R_rgb = img_real_R_rgb.resize((1920,1080),Image.NEAREST)
+        #print(img_real_L_rgb.size)
 
         #img_L_rgb, img_R_rgb, img_sim_rgb = process(img_L_rgb), process(img_R_rgb), process(img_sim_rgb)
         #print(img_L_rgb.shape, img_R_rgb.shape, img_sim_rgb.shape)

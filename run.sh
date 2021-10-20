@@ -11,8 +11,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -u /cephfs/jianyu/StereoGAN/train.py \
 --train_ratio_gan=3 \
 --save_interval=5 \
 --print_freq=10 \
---checkpoint_save_path="/cephfs/jianyu/eval/StereoGAN_train_batch5/checkpoints/${model_name}" \
---writer='/cephfs/jianyu/eval/StereoGAN_train_batch5' \
+--checkpoint_save_path="/cephfs/jianyu/eval/StereoGAN_train/checkpoints/${model_name}" \
+--writer='/cephfs/jianyu/eval/StereoGAN_train' \
 --use_multi_gpu=1 \
 --maxdisp=192 \
 --lambda_corr=1 \
@@ -21,4 +21,4 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -u /cephfs/jianyu/StereoGAN/train.py \
 --lambda_ms=0.1 \
 --lambda_warp_inv=5 \
 --lambda_disp_warp_inv=5 \
---config-file '/cephfs/jianyu/StereoGAN/configs/remote_train_gan.yaml'
+--config-file '/cephfs/jianyu/StereoGAN/configs/remote_train_gan_v10.yaml'
