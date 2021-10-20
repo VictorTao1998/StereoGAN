@@ -178,8 +178,6 @@ def train(args,cfg):
             param_group['lr'] = lr
 
         for i, batch in enumerate(TrainImgLoader):
-            if i > 5:
-                break
             n_iter += 1
             leftA = batch['img_sim_L'].to(device)
             rightA = batch['img_sim_R'].to(device)
