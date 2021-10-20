@@ -1,5 +1,5 @@
 import torch.nn.functional as F
-
+import torch
 
 def model_loss(disp_ests, disp_gt, mask):
     weights = [0.5, 0.5, 0.7, 1.0]
@@ -16,10 +16,12 @@ def model_loss0(disp_ests, disp_gt, mask):
         if s != 0:
             dgt = F.interpolate(disp_gt, scale_factor=1/(2**s))
             m = F.interpolate(mask.float(), scale_factor=1/(2**s)).byte()
+            m = m.bool()
         else:
             dgt = disp_gt
             m = mask
-        #print(disp_est.shape, m.shape)
+        #print(m.dtype, torch.all(m))
+        #print(dgt[m].shape)
         all_losses.append(weight * F.smooth_l1_loss(disp_est[m], dgt[m], size_average=True))
     return sum(all_losses)
 

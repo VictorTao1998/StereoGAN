@@ -325,7 +325,7 @@ def train(args,cfg):
             #print(mask.dtype)
             loss0 = model_loss0(disp_ests, dispA, mask)
             #print(mask.dtype)
-
+            
             if args.lambda_disp_warp_inv:
                 disp_warp = [-disp_ests[i] for i in range(3)]
                 loss_disp_warp_inv = G_BA(rightB, disp_warp, True, [x.detach() for x in fake_leftA_feats])
@@ -340,12 +340,15 @@ def train(args,cfg):
             else:
                 loss_disp_warp = 0
             #print(mask.dtype)
-
+            
             loss = loss0 + args.lambda_disp_warp*loss_disp_warp + args.lambda_disp_warp_inv*loss_disp_warp_inv
+            #print(loss.dtype, type(loss), type(loss0), type(loss_disp_warp), type(loss_disp_warp_inv))
+            #print('point1')
             loss.backward()
+            #print('point2')
             optimizer.step()
-
             if i % print_freq == print_freq - 1:
+                
                 print('epoch[{}/{}]  step[{}/{}]  loss: {}'.format(epoch, cfg.SOLVER.EPOCHS, i, len(TrainImgLoader), loss.item() ))
                 train_loss_meter.update(running_loss / print_freq)
                 #writer.add_scalar('loss/trainloss avg_meter', train_loss_meter.val, train_loss_meter.count * print_freq)
@@ -354,6 +357,7 @@ def train(args,cfg):
                 writer.add_scalar('loss/loss_disp_warp_inv', loss_disp_warp_inv, train_loss_meter.count * print_freq)
 
                 if i % args.train_ratio_gan == 0:
+                    
                     writer.add_scalar('loss/loss_G', loss_G, train_loss_meter.count * print_freq)
                     writer.add_scalar('loss/loss_gan', loss_GAN, train_loss_meter.count * print_freq)
                     writer.add_scalar('loss/loss_cycle', loss_cycle, train_loss_meter.count * print_freq)
@@ -471,6 +475,7 @@ if __name__ == '__main__':
     parser.add_argument('--config-file', type=str, default='./configs/local_train_steps.yaml',
                     metavar='FILE', help='Config files')
     args = parser.parse_args()
+    print('loading config: ', args.config_file)
     cfg.merge_from_file(args.config_file)
     #set_random_seed(args.seed)
     train(args,cfg)
