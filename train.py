@@ -325,16 +325,16 @@ def train(args,cfg):
             #print(mask.dtype)
             loss0 = model_loss0(disp_ests, dispA, mask)
             #print(mask.dtype)
-            
+            disp_ests_real = net(leftB, rightB)
             if args.lambda_disp_warp_inv:
-                disp_warp = [-disp_ests[i] for i in range(3)]
+                disp_warp = [-disp_ests_real[i] for i in range(3)]
                 loss_disp_warp_inv = G_BA(rightB, disp_warp, True, [x.detach() for x in fake_leftA_feats])
                 loss_disp_warp_inv = loss_disp_warp_inv.mean()
             else:
                 loss_disp_warp_inv = 0
 
             if args.lambda_disp_warp:
-                disp_warp = [disp_ests[i] for i in range(3)]
+                disp_warp = [disp_ests_real[i] for i in range(3)]
                 loss_disp_warp = G_BA(leftB, disp_warp, True, [x.detach() for x in fake_rightA_feats])
                 loss_disp_warp = loss_disp_warp.mean()
             else:
@@ -349,7 +349,7 @@ def train(args,cfg):
             optimizer.step()
             if i % print_freq == print_freq - 1:
                 
-                print('epoch[{}/{}]  step[{}/{}]  loss: {}'.format(epoch, cfg.SOLVER.EPOCHS, i, len(TrainImgLoader), loss.item() ))
+                print('epoch[{}/{}]  step[{}/{}]  loss: {} reproj_loss: {}'.format(epoch, cfg.SOLVER.EPOCHS, i, len(TrainImgLoader), loss.item(), loss_disp_warp_inv.item() ))
                 train_loss_meter.update(running_loss / print_freq)
                 #writer.add_scalar('loss/trainloss avg_meter', train_loss_meter.val, train_loss_meter.count * print_freq)
                 writer.add_scalar('loss/loss_disp', loss0, train_loss_meter.count * print_freq)

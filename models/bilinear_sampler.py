@@ -93,6 +93,11 @@ class BilinearSampler(nn.Module):
     def forward(self, x, offset, mode='border'):
         return bilinear_sampler(x, offset, mode=mode)
 
+#img = torch.tensor([[[[1,2,3],[4,5,6],[7,8,9]]]]).cuda().float()
+#disp = torch.tensor([[[[0,0,0],[1,0,0],[0,0,0]]]]).cuda().float()
+#out = bilinear_sampler(img,disp)
+#print(out)
+
 #x = torch.arange(24).reshape(1,1,4,6).float().cuda()
 #d = torch.ones(1,1,4,6).cuda()
 #new = bilinear_sampler(x, d)
