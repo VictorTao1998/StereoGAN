@@ -9,7 +9,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -u /jianyu-fast-vol/StereoGAN/test.py \
 --output '/jianyu-fast-vol/eval/StereoGAN_test' \
 --use_multi_gpu=1 \
 --maxdisp=192 \
---config-file '/jianyu-fast-vol/StereoGAN/configs/remote_test_gan.yaml' \
+--config-file '/jianyu-fast-vol/StereoGAN/configs/remote_test_gan_v10.yaml' \
 --exclude-bg \
 --exclude-zeros \
 --load_from_mgpus_model 1 \
