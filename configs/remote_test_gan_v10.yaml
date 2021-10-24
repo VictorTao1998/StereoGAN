@@ -20,7 +20,7 @@ REAL:
   DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_data_v10/'  # path to your real testing dataset
   DEPTHPATH: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
   LABELPATH: '/cephfs/datasets/iccv_pnp/real_data_v9/'
-  TRAIN: '/cephfs/jianyu/newTest.txt'
+  TRAIN: '/jianyu-fast-vol/list/newTest.txt'
   LEFT: '1024_irL_real.png'
   RIGHT: '1024_irR_real.png'
   PAD_WIDTH: 960
