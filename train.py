@@ -326,15 +326,16 @@ def train(args,cfg):
             loss0 = model_loss0(disp_ests, dispA, mask)
             #print(mask.dtype)
             disp_ests_real = net(leftB, rightB)
+            
             if args.lambda_disp_warp_inv:
-                disp_warp = -disp_ests_real[0]
+                disp_warp = [-disp_ests_real[i] for i in range(3)]
                 loss_disp_warp_inv = G_BA(rightB, disp_warp, True, [x.detach() for x in fake_leftA_feats])
-                loss_disp_warp_inv = loss_disp_warp_inv[1].mean()
+                loss_disp_warp_inv = loss_disp_warp_inv.mean()
             else:
                 loss_disp_warp_inv = 0
 
             if args.lambda_disp_warp:
-                disp_warp = [disp_ests_real[i] for i in range(1)]
+                disp_warp = [disp_ests_real[i] for i in range(3)]
                 loss_disp_warp = G_BA(leftB, disp_warp, True, [x.detach() for x in fake_rightA_feats])
                 loss_disp_warp = loss_disp_warp.mean()
             else:
