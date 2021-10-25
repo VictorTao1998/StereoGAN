@@ -474,8 +474,8 @@ def test(args,cfg):
     logger.info(f'Running with configs:\n{cfg}')
 
     with torch.no_grad():
-        if args.onReal:
-            test_sim(net, G_AB, G_BA, ValImgLoader, load, log_dir, writer, args, cfg)
+        if not args.onReal:
+            test_sim(net, G_AB, G_BA, ValImgLoader, logger, log_dir, writer, args, cfg)
         else:
             test_sample(net, ValImgLoader, logger, log_dir, writer, args, cfg)
 
