@@ -176,6 +176,7 @@ def train(args,cfg):
             lr = lr / int(args.lrepochs.split(':')[1])
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
+        print('current lr: ', lr)
 
         for i, batch in enumerate(TrainImgLoader):
             n_iter += 1
@@ -442,7 +443,7 @@ if __name__ == '__main__':
 
     # training
     parser.add_argument('--lr_rate', nargs='?', type=float, default=1e-4, help='learning rate for dispnetc')
-    parser.add_argument('--lrepochs', type=str, default='30:1', help='the epochs to decay lr: the downscale rate')
+    parser.add_argument('--lrepochs', type=str, default='1:2', help='the epochs to decay lr: the downscale rate')
     parser.add_argument('--lr_gan', nargs='?', type=float, default=2e-4, help='learning rate for GAN')
     parser.add_argument('--train_ratio_gan', nargs='?', type=int, default=5, help='training ratio disp:gan=5:1')
     parser.add_argument('--save_interval', nargs='?', type=int, default='10')
