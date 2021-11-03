@@ -25,7 +25,7 @@ class MessytableDataset(Dataset):
         :param sub: If debug mode is enabled, sub will be the number of data loaded
         """
         self.img_sim_L, self.img_sim_R, self.img_depth_l, self.img_depth_r, self.img_meta, \
-        self.img_real_L, self.img_real_R, self.img_real_depth, self.img_real_meta = \
+        self.img_real_L, self.img_real_R = \
             self.__get_split_files__(split_file, debug, sub, isTest=False, onReal=isReal)
         self.gaussian_blur = gaussian_blur
         self.color_jitter = color_jitter
@@ -75,10 +75,10 @@ class MessytableDataset(Dataset):
                 prefix = [line.strip() for line in f]
                 img_real_L = [os.path.join(cfg.REAL.DATASET, p, cfg.REAL.LEFT) for p in prefix]
                 img_real_R = [os.path.join(cfg.REAL.DATASET, p, cfg.REAL.RIGHT) for p in prefix]
-                img_real_depth = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.DEPTHL) for p in prefix]
-                img_real_meta = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.META) for p in prefix]
+                #img_real_depth = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.DEPTHL) for p in prefix]
+                #img_real_meta = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.META) for p in prefix]
 
-            return img_sim_L, img_sim_R, img_depth_l, img_depth_r, img_meta, img_real_L, img_real_R, img_real_depth, img_real_meta
+            return img_sim_L, img_sim_R, img_depth_l, img_depth_r, img_meta, img_real_L, img_real_R
         else:
             return img_L, img_R, img_depth_l, img_depth_r, img_meta#, img_label
 

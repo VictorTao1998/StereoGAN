@@ -35,11 +35,11 @@ class MessytableTestDataset_TEST(Dataset):
         :return: Lists of paths to the entries listed in split file
         """
         sim_dataset = cfg.DIR.DATASET
-        real_dataset = cfg.REAL.DATASET
+        real_dataset = cfg.VAL.DATASET
         sim_img_left_name = cfg.SPLIT.LEFT
         sim_img_right_name = cfg.SPLIT.RIGHT
-        real_img_left_name = cfg.REAL.LEFT
-        real_img_right_name = cfg.REAL.RIGHT
+        real_img_left_name = cfg.VAL.LEFT
+        real_img_right_name = cfg.VAL.RIGHT
         sim_realsense = cfg.SPLIT.SIM_REALSENSE
         real_realsense = cfg.SPLIT.REAL_REALSENSE
 
@@ -50,10 +50,10 @@ class MessytableTestDataset_TEST(Dataset):
             img_R_sim = [os.path.join(sim_dataset, p, sim_img_right_name) for p in prefix]
             img_L_real = [os.path.join(real_dataset, p, real_img_left_name) for p in prefix]
             img_R_real = [os.path.join(real_dataset, p, real_img_right_name) for p in prefix]
-            img_depth_l = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.DEPTHL) for p in prefix]
-            img_depth_r = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.DEPTHR) for p in prefix]
-            img_meta = [os.path.join(cfg.REAL.DEPTHPATH, p, cfg.SPLIT.META) for p in prefix]
-            img_label = [os.path.join(cfg.REAL.LABELPATH, p, cfg.SPLIT.LABEL) for p in prefix]
+            img_depth_l = [os.path.join(cfg.VAL.DEPTHPATH, p, cfg.SPLIT.DEPTHL) for p in prefix]
+            img_depth_r = [os.path.join(cfg.VAL.DEPTHPATH, p, cfg.SPLIT.DEPTHR) for p in prefix]
+            img_meta = [os.path.join(cfg.VAL.DEPTHPATH, p, cfg.SPLIT.META) for p in prefix]
+            img_label = [os.path.join(cfg.VAL.LABELPATH, p, cfg.SPLIT.LABEL) for p in prefix]
             img_sim_realsense = [os.path.join(sim_dataset, p, sim_realsense) for p in prefix]
             img_real_realsense = [os.path.join(real_dataset, p, real_realsense) for p in prefix]
 

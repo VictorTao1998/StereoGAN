@@ -34,10 +34,10 @@ def val(valloader, net, writer, epoch=1, board_save=True):
         left_img = sample['img_L'].cuda()
         right_img = sample['img_R'].cuda()
         disp_gt = sample['img_disp_l'].cuda()
-        left_img = F.interpolate(left_img, scale_factor=0.5, mode='bilinear',
-                             recompute_scale_factor=False, align_corners=False)
-        right_img = F.interpolate(right_img, scale_factor=0.5, mode='bilinear',
-                                recompute_scale_factor=False, align_corners=False)
+        #left_img = F.interpolate(left_img, scale_factor=0.5, mode='bilinear',
+        #                     recompute_scale_factor=False, align_corners=False)
+        #right_img = F.interpolate(right_img, scale_factor=0.5, mode='bilinear',
+        #                        recompute_scale_factor=False, align_corners=False)
         disp_gt = F.interpolate(disp_gt, scale_factor=0.5, mode='nearest',
                             recompute_scale_factor=False)  # [bs, 1, H, W]
         i = i + 1
@@ -131,14 +131,14 @@ def train(args,cfg):
 
     # data loader
     train_dataset = MessytableDataset(cfg.SPLIT.TRAIN, gaussian_blur=False, color_jitter=False, debug=False, sub=600)
-    val_dataset = MessytableTestDataset_TEST(cfg.REAL.TRAIN, debug=False, sub=100, onReal=True)
+    val_dataset = MessytableTestDataset_TEST(cfg.VAL.TRAIN, gaussian_blur=False, color_jitter=False, debug=False, sub=100, onReal=True)
 
     TrainImgLoader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
                                                      shuffle=True, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=True)
 
     ValImgLoader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
                                                 shuffle=False, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=False)
-    print(cfg.SOLVER.BATCH_SIZE,cfg.SOLVER.NUM_WORKER)
+    #print(cfg.SOLVER.BATCH_SIZE,cfg.SOLVER.NUM_WORKER)
     
     #if args.source_dataset == 'driving':
     #    dataset = ImageDataset(height=args.img_height, width=args.img_width)

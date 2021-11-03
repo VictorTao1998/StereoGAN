@@ -2,14 +2,14 @@
 
 # Directories
 DIR:
-  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v9/training'  #  directory of your training dataset
+  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v11/training'  #  directory of your training dataset
 
 # Split files
 SPLIT:
-  TRAIN: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v9/training_lists/all_train.txt'  # training lists of your training set
-  VAL: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v9/training_lists/all_val.txt'  # training lists of your validation set
-  LEFT: '0128_irL_denoised_half.png'
-  RIGHT: '0128_irR_denoised_half.png'
+  TRAIN: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v11/training_lists/all_train.txt'  # training lists of your training set
+  VAL: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v11/training_lists/all_val.txt'  # training lists of your validation set
+  LEFT: '0128_irL_kuafu_half.png'
+  RIGHT: '0128_irR_kuafu_half.png'
   DEPTHL: 'depthL.png'
   DEPTHR: 'depthR.png'
   META: 'meta.pkl'
@@ -17,7 +17,15 @@ SPLIT:
 
 # Configuration for testing on real dataset
 REAL:
-  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_data_v10'  # path to your real testing dataset
+  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/rand_scenes'  # path to your real testing dataset
+  LABELPATH: '/cephfs/datasets/iccv_pnp/real_data_v9/'
+  DEPTHPATH: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
+  TRAIN: '/cephfs/datasets/iccv_pnp/messy-table-dataset/rand_scenes/train_list.txt'
+  LEFT: '1024_irL_real_360.png'
+  RIGHT: '1024_irR_real_360.png'
+
+VAL:
+  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_data_v10/' 
   LABELPATH: '/cephfs/datasets/iccv_pnp/real_data_v9/'
   DEPTHPATH: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
   TRAIN: '/jianyu-fast-vol/list/newTrain.txt'
