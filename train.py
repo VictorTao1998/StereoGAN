@@ -133,7 +133,7 @@ def train(args,cfg):
 
     # data loader
     train_dataset = MessytableDataset(cfg.SPLIT.TRAIN, gaussian_blur=False, color_jitter=False, debug=False, sub=600)
-    val_dataset = MessytableTestDataset_TEST(cfg.VAL.TRAIN, gaussian_blur=False, color_jitter=False, debug=False, sub=100, onReal=True)
+    val_dataset = MessytableTestDataset_TEST(cfg.VAL.TRAIN, debug=False, sub=100, onReal=True)
 
     TrainImgLoader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
                                                      shuffle=True, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=True)
