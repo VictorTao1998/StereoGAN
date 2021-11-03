@@ -36,10 +36,10 @@ def val(valloader, net, writer, epoch=1, board_save=True):
         left_img = sample['img_L'].cuda()
         right_img = sample['img_R'].cuda()
         disp_gt = sample['img_disp_l'].cuda()
-        #left_img = F.interpolate(left_img, scale_factor=0.5, mode='bilinear',
-        #                     recompute_scale_factor=False, align_corners=False)
-        #right_img = F.interpolate(right_img, scale_factor=0.5, mode='bilinear',
-        #                        recompute_scale_factor=False, align_corners=False)
+        left_img = F.interpolate(left_img, scale_factor=0.5, mode='bilinear',
+                             recompute_scale_factor=False, align_corners=False)
+        right_img = F.interpolate(right_img, scale_factor=0.5, mode='bilinear',
+                                recompute_scale_factor=False, align_corners=False)
         disp_gt = F.interpolate(disp_gt, scale_factor=0.5, mode='nearest',
                             recompute_scale_factor=False)  # [bs, 1, H, W]
         i = i + 1
