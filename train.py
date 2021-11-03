@@ -31,6 +31,8 @@ def val(valloader, net, writer, epoch=1, board_save=True):
     EPEs, D1s, Thres1s, Thres2s, Thres3s = 0, 0, 0, 0, 0
     i = 0
     for sample in valloader:
+        if i > 2:
+            break
         left_img = sample['img_L'].cuda()
         right_img = sample['img_R'].cuda()
         disp_gt = sample['img_disp_l'].cuda()
@@ -178,6 +180,8 @@ def train(args,cfg):
             param_group['lr'] = lr
 
         for i, batch in enumerate(TrainImgLoader):
+            if i > 2:
+                break
             n_iter += 1
             leftA = batch['img_sim_L'].to(device)
             rightA = batch['img_sim_R'].to(device)

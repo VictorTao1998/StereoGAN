@@ -39,6 +39,14 @@ _C.REAL.RIGHT = '1024_irR_real_1080.png'
 _C.REAL.PAD_WIDTH = 960
 _C.REAL.PAD_HEIGHT = 544
 
+_C.VAL = CN()
+_C.VAL.DATASET = '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_data_v10/' 
+_C.VAL.LABELPATH = '/cephfs/datasets/iccv_pnp/real_data_v9/'
+_C.VAL.DEPTHPATH = '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
+_C.VAL.TRAIN = '/jianyu-fast-vol/list/newTrain.txt'
+_C.VAL.LEFT = '1024_irL_real.png'
+_C.VAL.RIGHT = '1024_irR_real.png'
+
 # Solver args
 _C.SOLVER = CN()
 _C.SOLVER.LR_CASCADE = 0.001        # base learning rate for cascade
