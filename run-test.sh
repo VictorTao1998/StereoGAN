@@ -13,7 +13,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -u /jianyu-fast-vol/StereoGAN/test.py \
 --exclude-bg \
 --exclude-zeros \
 --load_from_mgpus_model 1 \
---load_dispnet_path '/jianyu-fast-vol/eval/StereoGAN_train_final/checkpoints/StereoGAN/ep1_D1_0.7821_EPE11.8211.pth.rar' \
---load_gan_path '/jianyu-fast-vol/eval/StereoGAN_train_final/checkpoints/StereoGAN/ep1_D1_0.7821_EPE11.8211.pth.rar' \
+--load_dispnet_path '/jianyu-fast-vol/eval/StereoGAN_train_final_1/checkpoints/StereoGAN/ep0_D1_0.6698_EPE8.9879.pth.rar' \
+--load_gan_path '/jianyu-fast-vol/eval/StereoGAN_train_final_1/checkpoints/StereoGAN/ep0_D1_0.6698_EPE8.9879.pth.rar' \
 --load_checkpoints 1 \
 --onReal
