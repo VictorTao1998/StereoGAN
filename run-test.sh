@@ -6,7 +6,7 @@ model_name="StereoGAN"
 
 CUDA_VISIBLE_DEVICES=0,1,2,3 python -u /jianyu-fast-vol/StereoGAN/test.py \
 --print_freq=220 \
---output '/jianyu-fast-vol/eval/StereoGAN_test_final' \
+--output '/jianyu-fast-vol/eval/StereoGAN_test_final_1' \
 --use_multi_gpu=1 \
 --maxdisp=192 \
 --config-file '/jianyu-fast-vol/StereoGAN/configs/remote_test_gan_v10.yaml' \
