@@ -17,7 +17,7 @@ SPLIT:
 
 # Configuration for testing on real dataset
 REAL:
-  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/rand_scenes'  # path to your real testing dataset
+  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/rand_scenes/rand_scenes'  # path to your real testing dataset
   LABELPATH: '/cephfs/datasets/iccv_pnp/real_data_v9/'
   DEPTHPATH: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
   TRAIN: '/cephfs/datasets/iccv_pnp/messy-table-dataset/rand_scenes/train_list.txt'
