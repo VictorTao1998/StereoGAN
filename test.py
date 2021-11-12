@@ -233,6 +233,8 @@ def test_sim(net, G_AB, G_BA, val_loader, logger, log_dir, summary_writer, args,
     #os.mkdir(args.output + "/feature")
 
     for iteration, data in enumerate(tqdm(val_loader)):
+        if iteration > 2:
+            break
         img_L = data['img_L'].cuda()    # [bs, 1, H, W]
         img_R = data['img_R'].cuda()
 
