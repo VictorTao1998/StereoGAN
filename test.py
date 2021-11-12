@@ -34,6 +34,8 @@ import torchvision.transforms as transforms
 
 from utils.cascade_metrics import compute_err_metric, compute_obj_err
 
+real_obj_id = [4, 5, 7, 9, 13, 14, 15, 16]
+
 def test_sample(net, val_loader, logger, log_dir, summary_writer, args, cfg):
     net.eval()
 
@@ -389,7 +391,25 @@ def test_sim(net, G_AB, G_BA, val_loader, logger, log_dir, summary_writer, args,
 
     logger.info(f'Successfully saved object error to obj_err.txt')
 
+    # Get error on real and 3d printed objects
+    real_depth_error = 0
+    real_depth_error_4mm = 0
+    printed_depth_error = 0
+    printed_depth_error_4mm = 0
+    for i in range(cfg.SPLIT.OBJ_NUM):
+        if i in real_obj_id:
+            real_depth_error += total_obj_depth_err[i]
+            real_depth_error_4mm += total_obj_depth_4_err[i]
+        else:
+            printed_depth_error += total_obj_depth_err[i]
+            printed_depth_error_4mm += total_obj_depth_4_err[i]
+    real_depth_error /= len(real_obj_id)
+    real_depth_error_4mm /= len(real_obj_id)
+    printed_depth_error /= (cfg.SPLIT.OBJ_NUM - len(real_obj_id))
+    printed_depth_error_4mm /= (cfg.SPLIT.OBJ_NUM - len(real_obj_id))
 
+    logger.info(f'Real objects - absolute depth error: {real_depth_error}, depth 4mm: {real_depth_error_4mm} \n'
+                f'3D printed objects - absolute depth error {printed_depth_error}, depth 4mm: {printed_depth_error_4mm}')
 
 
 
