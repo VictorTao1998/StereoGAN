@@ -326,6 +326,10 @@ def train(args,cfg):
             #print(mask.dtype)
             loss0 = model_loss0(disp_ests, dispA, mask)
             #print(mask.dtype)
+            loss0.backward()
+            optimizer.step()
+
+            optimizer.zero_grad()
             disp_ests_real = net(leftB, rightB)
             
             if args.lambda_disp_warp_inv:
@@ -343,7 +347,7 @@ def train(args,cfg):
                 loss_disp_warp = 0
             #print(mask.dtype)
             
-            loss = loss0 + args.lambda_disp_warp*loss_disp_warp + args.lambda_disp_warp_inv*loss_disp_warp_inv
+            loss = args.lambda_disp_warp*loss_disp_warp + args.lambda_disp_warp_inv*loss_disp_warp_inv
             #print(loss.dtype, type(loss), type(loss0), type(loss_disp_warp), type(loss_disp_warp_inv))
             #print('point1')
             loss.backward()

@@ -132,7 +132,7 @@ def train(args,cfg):
 
     # data loader
     train_dataset = MessytableDataset(cfg.SPLIT.TRAIN, gaussian_blur=False, color_jitter=False, debug=False, sub=600)
-    val_dataset = MessytableTestDataset_TEST(cfg.REAL.TRAIN, debug=False, sub=100, onReal=True)
+    val_dataset = MessytableTestDataset_TEST(cfg.VAL.TRAIN, debug=False, sub=100, onReal=True)
 
     TrainImgLoader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
                                                      shuffle=True, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=True)
@@ -309,11 +309,15 @@ def train(args,cfg):
             G_AB.eval()
             G_BA.eval()
             optimizer.zero_grad()
-            disp_ests = net(G_AB(leftA), G_AB.forward(rightA))
+            pred_disp1, pred_disp2, pred_disp3 = net(G_AB(leftA), G_AB.forward(rightA))
             mask = (dispA < args.maxdisp) & (dispA > 0)
             #print(mask.dtype)
-            print(disp_ests[0].shape, dispA.shape, mask.shape)
-            pred_disp1, pred_disp2, pred_disp3 = psmnet_model(img_L, img_R)
+            #print(disp_ests[0].shape, dispA.shape, mask.shape)
+            loss0 = 0.5 * F.smooth_l1_loss(pred_disp1[mask], dispA[mask], reduction='mean') \
+                + 0.7 * F.smooth_l1_loss(pred_disp2[mask], dispA[mask], reduction='mean') \
+                + F.smooth_l1_loss(pred_disp3[mask], dispA[mask], reduction='mean')
+
+            pred_disp1, pred_disp2, pred_disp3 = net(img_L, img_R)
             pred_disp = pred_disp3
             loss0 = 0.5 * F.smooth_l1_loss(pred_disp1[mask], disp_gt[mask], reduction='mean') \
                 + 0.7 * F.smooth_l1_loss(pred_disp2[mask], disp_gt[mask], reduction='mean') \

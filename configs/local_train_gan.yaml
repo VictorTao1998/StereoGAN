@@ -2,14 +2,14 @@
 
 # Directories
 DIR:
-  DATASET: '/data/v9/training'  #  directory of your training dataset
+  DATASET: '/dataset/messy-table-dataset/v12/training'  #  directory of your training dataset
 
 # Split files
 SPLIT:
-  TRAIN: '/data/v9/training_lists/all_train.txt'  # training lists of your training set
-  VAL: '/data/v9/training_lists/all_val.txt'  # training lists of your validation set
-  LEFT: '0128_irL_denoised_half.png'
-  RIGHT: '0128_irR_denoised_half.png'
+  TRAIN: '/dataset/messy-table-dataset/v12/training_lists/all_train.txt'  # training lists of your training set
+  VAL: '/dataset/messy-table-dataset/v12/training_lists/all_val.txt'  # training lists of your validation set
+  LEFT: '0128_irL_kuafu_half.png'
+  RIGHT: '0128_irR_kuafu_half.png'
   DEPTHL: 'depthL.png'
   DEPTHR: 'depthR.png'
   META: 'meta.pkl'
@@ -17,11 +17,19 @@ SPLIT:
 
 # Configuration for testing on real dataset
 REAL:
-  DATASET: '/data/real_data_v9/training'  # path to your real testing dataset
-  DEPTHPATH: '/data/real_v9/training'
-  TRAIN: '/data/real_v9/training_lists/all.txt'
-  LEFT: '1024_irL_real_1080.png'
-  RIGHT: '1024_irR_real_1080.png'
+  DATASET: '/dataset/messy-table-dataset/rand_scenes'  # path to your real testing dataset
+  DEPTHPATH: '/dataset/messy-table-dataset/real_v9/training'
+  TRAIN: '/dataset/messy-table-dataset/rand_scenes/train_list.txt'
+  LEFT: '1024_irL_real_360.png'
+  RIGHT: '1024_irR_real_360.png'
+
+VAL:
+  DATASET: '/dataset/messy-table-dataset/real_data_v10/' 
+  LABELPATH: '/dataset/messy-table-dataset/real_data_v9/'
+  DEPTHPATH: '/dataset/messy-table-dataset/real_v9/training'
+  TRAIN: '/dataset/messy-table-dataset/real_data_v10/newTrain.txt'
+  LEFT: '1024_irL_real.png'
+  RIGHT: '1024_irR_real.png'
 
 # Solver args
 SOLVER:
