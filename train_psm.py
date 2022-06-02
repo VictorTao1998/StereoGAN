@@ -16,6 +16,7 @@ from models.gan_nets import GeneratorResNet, Discriminator, weights_init_normal
 from datasets.messytable import MessytableDataset
 from datasets.messytable_test import MessytableTestDataset_TEST
 from models.psmnet import PSMNet
+from utils.cascade_metrics import compute_err_metric
 
 from tensorboardX import SummaryWriter
 import torchvision.utils as vutils
@@ -29,34 +30,40 @@ from utils.data_util import *
 def val(valloader, net, writer, epoch=1, board_save=True):
     print("begin validation")
     net.eval()
-    EPEs, D1s, Thres1s, Thres2s, Thres3s = 0, 0, 0, 0, 0
     i = 0
     for sample in valloader:
         left_img = sample['img_L'].cuda()
         right_img = sample['img_R'].cuda()
         disp_gt = sample['img_disp_l'].cuda()
+        img_depth = sample['img_depth_l'].cuda()
+        img_focal_length = sample['focal_length'].cuda()
+        img_baseline = sample['baseline'].cuda()
         left_img = F.interpolate(left_img, scale_factor=0.5, mode='bilinear',
                              recompute_scale_factor=False, align_corners=False)
         right_img = F.interpolate(right_img, scale_factor=0.5, mode='bilinear',
                                 recompute_scale_factor=False, align_corners=False)
         disp_gt = F.interpolate(disp_gt, scale_factor=0.5, mode='nearest',
                             recompute_scale_factor=False)  # [bs, 1, H, W]
+        img_depth = F.interpolate(img_depth, scale_factor=0.5, mode='nearest',
+                            recompute_scale_factor=False)  # [bs, 1, H, W]
+        right_pad = 960 - 960
+        top_pad = 544 - 540
+        left_img = F.pad(left_img, (0, right_pad, top_pad, 0, 0, 0, 0, 0), mode='constant', value=0)
+        right_img = F.pad(right_img, (0, right_pad, top_pad, 0, 0, 0, 0, 0), mode='constant', value=0)
+
         i = i + 1
         mask = (disp_gt < args.maxdisp) & (disp_gt > 0)
-        disp_est = net(left_img, right_img)[0].squeeze(1)
-        #print(disp_est.shape, disp_gt.shape, mask.shape)
-        EPEs += EPE_metric(disp_est, disp_gt[0], mask[0])
-        D1s += D1_metric(disp_est, disp_gt[0], mask[0])
-        Thres1s += Thres_metric(disp_est, disp_gt[0], mask[0], 2.0)
-        Thres2s += Thres_metric(disp_est, disp_gt[0], mask[0], 4.0)
-        Thres3s += Thres_metric(disp_est, disp_gt[0], mask[0], 5.0)
-    if board_save:
-        writer.add_scalar("val/EPE", EPEs/i, epoch)
-        writer.add_scalar("val/D1", D1s/i, epoch)
-        writer.add_scalar("val/Thres2", Thres1s/i, epoch)
-        writer.add_scalar("val/Thres4", Thres2s/i, epoch)
-        writer.add_scalar("val/Thres5", Thres3s/i, epoch)
-    return EPEs/i, D1s/i
+        #print(left_img.shape, right_img.shape)
+        disp_est = net(left_img, right_img)
+        disp_est = disp_est[:, :, top_pad:, :]
+
+        err_metrics = compute_err_metric(disp_gt, img_depth, disp_est, img_focal_length,
+                                         img_baseline, mask)
+
+        writer.add_scalar("val/EPE", err_metrics['epe'], epoch)
+        if i % 10 == 0:
+            print('validation step '+str(i)+' epe error: '+str(err_metrics['epe']))
+    return err_metrics['epe'], err_metrics['bad1']
 
 def train(args,cfg):
     writer = SummaryWriter(args.writer)
@@ -132,12 +139,12 @@ def train(args,cfg):
 
     # data loader
     train_dataset = MessytableDataset(cfg.SPLIT.TRAIN, gaussian_blur=False, color_jitter=False, debug=False, sub=600)
-    val_dataset = MessytableTestDataset_TEST(cfg.VAL.TRAIN, debug=False, sub=100, onReal=True)
+    val_dataset = MessytableTestDataset_TEST(cfg.VAL.TRAIN, debug=True, sub=10, onReal=True)
 
     TrainImgLoader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
                                                      shuffle=True, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=True)
 
-    ValImgLoader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.SOLVER.BATCH_SIZE,
+    ValImgLoader = torch.utils.data.DataLoader(val_dataset, batch_size=1,
                                                 shuffle=False, num_workers=cfg.SOLVER.NUM_WORKER, drop_last=False)
     print(cfg.SOLVER.BATCH_SIZE,cfg.SOLVER.NUM_WORKER)
     
@@ -179,6 +186,8 @@ def train(args,cfg):
             param_group['lr'] = lr
 
         for i, batch in enumerate(TrainImgLoader):
+            if i > 10:
+                break
             n_iter += 1
             leftA = batch['img_sim_L'].to(device)
             rightA = batch['img_sim_R'].to(device)
@@ -316,31 +325,37 @@ def train(args,cfg):
             loss0 = 0.5 * F.smooth_l1_loss(pred_disp1[mask], dispA[mask], reduction='mean') \
                 + 0.7 * F.smooth_l1_loss(pred_disp2[mask], dispA[mask], reduction='mean') \
                 + F.smooth_l1_loss(pred_disp3[mask], dispA[mask], reduction='mean')
+            loss0.backward()
+            optimizer.step()
 
-            pred_disp1, pred_disp2, pred_disp3 = net(img_L, img_R)
-            pred_disp = pred_disp3
-            loss0 = 0.5 * F.smooth_l1_loss(pred_disp1[mask], disp_gt[mask], reduction='mean') \
-                + 0.7 * F.smooth_l1_loss(pred_disp2[mask], disp_gt[mask], reduction='mean') \
-                + F.smooth_l1_loss(pred_disp3[mask], disp_gt[mask], reduction='mean')
+            optimizer.zero_grad()
+            pred_disp1_real, pred_disp2_real, pred_disp3_real = net(leftB, rightB)
+
+            pred_disp1_real = F.interpolate(pred_disp1_real, scale_factor=0.25, mode='bilinear',
+                             recompute_scale_factor=False, align_corners=False)
+            pred_disp2_real = F.interpolate(pred_disp2_real, scale_factor=0.5, mode='bilinear',
+                             recompute_scale_factor=False, align_corners=False)
+            pred_disp_real = [pred_disp3_real, pred_disp2_real, pred_disp1_real]
+
             #loss0 = model_loss0(disp_ests, dispA, mask)
             #print(mask.dtype)
 
             if args.lambda_disp_warp_inv:
-                disp_warp = [-disp_ests[i] for i in range(3)]
+                disp_warp = [-pred_disp_real[i] for i in range(3)]
                 loss_disp_warp_inv = G_BA(rightB, disp_warp, True, [x.detach() for x in fake_leftA_feats])
                 loss_disp_warp_inv = loss_disp_warp_inv.mean()
             else:
                 loss_disp_warp_inv = 0
 
             if args.lambda_disp_warp:
-                disp_warp = [disp_ests[i] for i in range(3)]
+                disp_warp = [pred_disp_real[i] for i in range(3)]
                 loss_disp_warp = G_BA(leftB, disp_warp, True, [x.detach() for x in fake_rightA_feats])
                 loss_disp_warp = loss_disp_warp.mean()
             else:
                 loss_disp_warp = 0
             #print(mask.dtype)
 
-            loss = loss0 + args.lambda_disp_warp*loss_disp_warp + args.lambda_disp_warp_inv*loss_disp_warp_inv
+            loss = args.lambda_disp_warp*loss_disp_warp + args.lambda_disp_warp_inv*loss_disp_warp_inv
             loss.backward()
             optimizer.step()
 
@@ -391,7 +406,7 @@ def train(args,cfg):
                     writer.add_image('BAB_R/fakeA', fakeA_R_visual, i)
                     writer.add_image('BAB_R/recB', recB_R_visual, i)
                     save_images(writer, 'train', {'disp_gt':[dispA[0].detach().cpu()]}, i)
-                    save_images(writer, 'train', {'disp_pred':[disp[0].detach().cpu() for disp in disp_ests]}, i)
+                    save_images(writer, 'train', {'disp_pred':[pred_disp3.detach().cpu()]}, i)
                     #writer.add_image('pred/gt_disp', dispA[0].detach().cpu(), i)
                     #writer.add_image('pred/pred_disp', disp_ests[0][0].detach().cpu(), i)
 

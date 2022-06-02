@@ -2,14 +2,14 @@
 
 # Directories
 DIR:
-  DATASET: '/data/v9/training'  #  directory of your training dataset
+  DATASET: '/media/jianyu/dataset/messy-table-dataset/primv2_rdang_rdpat_rdlight'  #  directory of your training dataset
 
 # Split files
 SPLIT:
-  TRAIN: '/data/v9/training_lists/all_train.txt'  # training lists of your training set
-  VAL: '/data/v9/training_lists/all_val.txt'  # training lists of your validation set
-  LEFT: '0128_irL_denoised_half.png'
-  RIGHT: '0128_irR_denoised_half.png'
+  TRAIN: '/media/jianyu/dataset/messy-table-dataset/primv2_rdang_rdpat_rdlight/train.txt'  # training lists of your training set
+  VAL: '/media/jianyu/dataset/messy-table-dataset/primv2_rdang_rdpat_rdlight/train.txt'  # training lists of your validation set
+  LEFT: '0128_irL_kuafu_half.png'
+  RIGHT: '0128_irR_kuafu_half.png'
   DEPTHL: 'depthL.png'
   DEPTHR: 'depthR.png'
   META: 'meta.pkl'
@@ -17,10 +17,18 @@ SPLIT:
 
 # Configuration for testing on real dataset
 REAL:
-  DATASET: '/data/real_data_v10/training'  # path to your real testing dataset
-  LABELPATH: '/data/real_data_v9/training'
-  DEPTHPATH: '/data/real_v9/training'
-  TRAIN: '/data/real_v9/training_lists/all.txt'
+  DATASET: '/media/jianyu/dataset/messy-table-dataset/rand_scenes'  # path to your real testing dataset
+  LABELPATH: '/media/jianyu/dataset/messy-table-dataset/rand_scenes'
+  DEPTHPATH: '/media/jianyu/dataset/messy-table-dataset/rand_scenes'
+  TRAIN: '/media/jianyu/dataset/messy-table-dataset/rand_scenes/train_list.txt'
+  LEFT: '1024_irL_real_360.png'
+  RIGHT: '1024_irR_real_360.png'
+
+VAL:
+  DATASET: '/media/jianyu/dataset/messy-table-dataset/real_data_v10' 
+  LABELPATH: '/media/jianyu/dataset/messy-table-dataset/real_data_v10'
+  DEPTHPATH: '/media/jianyu/dataset/messy-table-dataset/real_data_v10'
+  TRAIN: '/media/jianyu/dataset/messy-table-dataset/real_data_v10/train.txt'
   LEFT: '1024_irL_real.png'
   RIGHT: '1024_irR_real.png'
 

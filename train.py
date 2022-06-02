@@ -40,6 +40,7 @@ def val(valloader, net, writer, epoch=1, board_save=True):
                                 recompute_scale_factor=False, align_corners=False)
         disp_gt = F.interpolate(disp_gt, scale_factor=0.5, mode='nearest',
                             recompute_scale_factor=False)  # [bs, 1, H, W]
+
         i = i + 1
         mask = (disp_gt < args.maxdisp) & (disp_gt > 0)
         disp_est = net(left_img, right_img)[0].squeeze(1)

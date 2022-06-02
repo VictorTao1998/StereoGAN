@@ -2,12 +2,12 @@
 
 # Directories
 DIR:
-  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v12/training'  #  directory of your training dataset
+  DATASET: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_rdpat_rdlight/data/'  #  directory of your training dataset
 
 # Split files
 SPLIT:
-  TRAIN: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v12/training_lists/all_train.txt'  # training lists of your training set
-  VAL: '/cephfs/datasets/iccv_pnp/messy-table-dataset/v12/training_lists/all_val.txt'  # training lists of your validation set
+  TRAIN: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_rdpat_rdlight/train.txt'  # training lists of your training set
+  VAL: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_rdpat_rdlight/train.txt'  # training lists of your validation set
   LEFT: '0128_irL_kuafu_half.png'
   RIGHT: '0128_irR_kuafu_half.png'
   DEPTHL: 'depthL.png'
@@ -17,18 +17,18 @@ SPLIT:
 
 # Configuration for testing on real dataset
 REAL:
-  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/rand_scenes/rand_scenes'  # path to your real testing dataset
-  LABELPATH: '/cephfs/datasets/iccv_pnp/real_data_v9/'
-  DEPTHPATH: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
-  TRAIN: '/cephfs/datasets/iccv_pnp/messy-table-dataset/rand_scenes/train_list.txt'
+  DATASET: '/messytable-slow-vol/messy-table-dataset/rand_scenes/rand_scenes/'  # path to your real testing dataset
+  LABELPATH: '/messytable-slow-vol/messy-table-dataset/rand_scenes/rand_scenes/'
+  DEPTHPATH: '/messytable-slow-vol/messy-table-dataset/rand_scenes/rand_scenes/'
+  TRAIN: '/messytable-slow-vol/messy-table-dataset/rand_scenes/train_list.txt'
   LEFT: '1024_irL_real_360.png'
   RIGHT: '1024_irR_real_360.png'
 
 VAL:
-  DATASET: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_data_v10/' 
-  LABELPATH: '/cephfs/datasets/iccv_pnp/real_data_v9/'
-  DEPTHPATH: '/cephfs/datasets/iccv_pnp/messy-table-dataset/real_v9/training'
-  TRAIN: '/jianyu-fast-vol/list/newTrain.txt'
+  DATASET: '/messytable-slow-vol/messy-table-dataset/real_data_v10/' 
+  LABELPATH: '/messytable-slow-vol/messy-table-dataset/real_data_v10/'
+  DEPTHPATH: '/messytable-slow-vol/messy-table-dataset/real_data_v10/'
+  TRAIN: '/messytable-slow-vol/messy-table-dataset/real_data_v10/train.txt'
   LEFT: '1024_irL_real.png'
   RIGHT: '1024_irR_real.png'
 
