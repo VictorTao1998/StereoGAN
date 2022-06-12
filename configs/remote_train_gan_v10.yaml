@@ -2,12 +2,12 @@
 
 # Directories
 DIR:
-  DATASET: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_rdpat_rdlight/data/'  #  directory of your training dataset
+  DATASET: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_fixpat/data/'  #  directory of your training dataset
 
 # Split files
 SPLIT:
-  TRAIN: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_rdpat_rdlight/train.txt'  # training lists of your training set
-  VAL: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_rdpat_rdlight/train.txt'  # training lists of your validation set
+  TRAIN: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_fixpat/train.txt'  # training lists of your training set
+  VAL: '/messytable-slow-vol/messy-table-dataset/primv2_rdang_fixpat/train.txt'  # training lists of your validation set
   LEFT: '0128_irL_kuafu_half.png'
   RIGHT: '0128_irR_kuafu_half.png'
   DEPTHL: 'depthL.png'

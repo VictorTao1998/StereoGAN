@@ -2,35 +2,37 @@
 
 # Directories
 DIR:
-  DATASET: '/dataset/messy-table-dataset/real_v9/training'  #  directory of your training dataset
+  DATASET: '/media/jianyu/dataset/messy-table-dataset/ijrrobj_simtest_fixang_fixpat'  #  directory of your training dataset
 
 # Split files
 SPLIT:
-  TRAIN: '/data/v9/training_lists/all_train.txt'  # training lists of your training set
-  VAL: '/data/v9/training_lists/all_val.txt'  # training lists of your validation set
-  LEFT: '0128_irL_denoised_half.png'
-  RIGHT: '0128_irR_denoised_half.png'
+  TRAIN: '/media/jianyu/dataset/messy-table-dataset/real_data_v10/test.txt'  # training lists of your training set
+  VAL: '/media/jianyu/dataset/messy-table-dataset/real_data_v10/test.txt'  # training lists of your validation set
+  LEFT: '0128_irL_kuafu_half.png'
+  RIGHT: '0128_irR_kuafu_half.png'
   DEPTHL: 'depthL.png'
   DEPTHR: 'depthR.png'
   META: 'meta.pkl'
   LABEL: 'irL_label_image.png'
+  REAL_REALSENSE: '1024_depthL_real.png'
+  SIM_REALSENSE: 'depthL.png'
 
 # Configuration for testing on real dataset
 REAL:
-  DATASET: '/dataset/messy-table-dataset/real_data_v9/training'  # path to your real testing dataset
-  DEPTHPATH: '/dataset/messy-table-dataset/real_v9/training'
-  LABELPATH: '/dataset/messy-table-dataset/real_data_v9/training'
-  TRAIN: '/dataset/messy-table-dataset/real_v9/training_lists/all.txt'
-  LEFT: '1024_irL_real_1080.png'
-  RIGHT: '1024_irR_real_1080.png'
+  DATASET: '/media/jianyu/dataset/messy-table-dataset/real_data_v10'  # path to your real testing dataset
+  DEPTHPATH: '/media/jianyu/dataset/messy-table-dataset/real_data_v10'
+  LABELPATH: '/media/jianyu/dataset/messy-table-dataset/real_data_v10'
+  TRAIN: '/media/jianyu/dataset/messy-table-dataset/real_data_v10/test.txt'
+  LEFT: '1024_irL_real.png'
+  RIGHT: '1024_irR_real.png'
   PAD_WIDTH: 960
   PAD_HEIGHT: 544
 
 VAL:
-  DATASET: '/dataset/messy-table-dataset/real_data_v10/' 
-  LABELPATH: '/dataset/messy-table-dataset/real_data_v9/'
-  DEPTHPATH: '/dataset/messy-table-dataset/real_v9/training'
-  TRAIN: '/dataset/messy-table-dataset/real_v9/training_lists/all.txt'
+  DATASET: '/media/jianyu/dataset/messy-table-dataset/real_data_v10' 
+  LABELPATH: '/media/jianyu/dataset/messy-table-dataset/real_data_v10'
+  DEPTHPATH: '/media/jianyu/dataset/messy-table-dataset/real_data_v10'
+  TRAIN: '/media/jianyu/dataset/messy-table-dataset/real_data_v10/test.txt'
   LEFT: '1024_irL_real.png'
   RIGHT: '1024_irR_real.png'
 
